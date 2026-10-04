@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RiseBazaar — Premium AI Retail Portal</title>
+    <style>
+      :root {
+        --paper: #f5efe8;
+        --paper-2: #efe3d5;
+        --ink: #0d1717;
+        --panel: #0f1e1c;
+        --panel-2: #112d2a;
+        --panel-3: #183a36;
+        --field: #112b28;
+        --field-2: #1a463f;
+        --field-3: #0b1d1a;
+        --fg: #f7f5f0;
+        --line: rgba(255, 255, 255, 0.14);
+        --muted: rgba(255, 255, 255, 0.72);
+        --gold: #f3d39d;
+        --peach: #f4b6a5;
+        --mint: #86deb3;
+        --blue: #8ec8ff;
+        --violet: #a38ef7;
+        --shadow: rgba(10, 24, 22, 0.28);
+        --radius: 22px;
+        --container: 1200px;
+        --nav-h: 76px;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: radial-gradient(circle at top, rgba(151, 122, 94, 0.14), transparent 40%), var(--paper);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      a { color: inherit; }
+      img { max-width: 100%; display: block; }
+
+      .container { width: min(var(--container), calc(100% - 2rem)); margin-inline: auto; }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        backdrop-filter: blur(14px);
+        background: rgba(245, 239, 232, 0.64);
+        border-bottom: 1px solid rgba(13, 23, 23, 0.08);
+      }
+
+      .topbar-inner {
+        height: var(--nav-h);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+        font-size: 1.15rem;
+      }
+
+      .brand-mark {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--peach), var(--mint));
+        display: grid;
+        place-items: center;
+        color: #0a1b1a;
+        font-size: 1rem;
+        font-weight: 900;
+        box-shadow: 0 12px 30px rgba(244, 182, 165, 0.32);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        color: #233a38;
+        font-size: 0.95rem;
+      }
+
+      .nav a {
+        text-decoration: none;
+        opacity: 0.8;
+      }
+
+      .nav a:hover { opacity: 1; }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-height: 44px;
+        padding: 0 1.1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(13, 23, 23, 0.1);
+        cursor: pointer;
+        font-weight: 700;
+        text-decoration: none;
+        transition: 0.2s ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); }
+
+      .btn.primary {
+        background: linear-gradient(135deg, var(--peach), var(--violet));
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 16px 40px rgba(163, 142, 247, 0.3);
+      }
+
+      .btn.ghost {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--ink);
+      }
+
+      #gp {
+        position: relative;
+        isolation: isolate;
+        background: transparent;
+      }
+
+      #vp {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        height: 100svh;
+        width: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      #pin {
+        position: relative;
+        height: var(--h, 100svh);
+        overflow: clip;
+        isolation: isolate;
+        container-type: size;
+      }
+
+      #field {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      #gp[data-ready] #field { opacity: 1; }
+
+      #field i {
+        position: absolute;
+        inset: 0;
+        transform: scale(var(--fs, 1));
+        background: radial-gradient(circle at 18% 12%, rgba(243, 211, 157, 0.86), transparent 30%), radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.12), transparent 24%), radial-gradient(circle at 52% 76%, rgba(10, 29, 27, 0.62), transparent 42%), linear-gradient(135deg, var(--field), var(--field-2) 52%, var(--field-3));
+      }
+
+      #art {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: visible;
+      }
+
+      #choices {
+        position: absolute;
+        inset: 0;
+        visibility: hidden;
+      }
+
+      #gp[data-choosing=true] #choices { visibility: visible; }
+
+      #choices button {
+        position: absolute;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        cursor: pointer;
+        touch-action: pan-y;
+      }
+
+      #choices button:disabled { pointer-events: none; }
+
+      #choices button:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.9);
+        outline-offset: 5px;
+      }
+
+      #fallback {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font: 900 min(calc(100cqw / 7), 38cqh) / 1 "Arial Black", Arial, sans-serif;
+        letter-spacing: 0.05em;
+        color: var(--field);
+      }
+
+      #gp[data-ready] #fallback { visibility: hidden; }
+
+      #front {
+        position: absolute;
+        inset: 0;
+        opacity: var(--cap, 1);
+        pointer-events: none;
+      }
+
+      #front header {
+        position: absolute;
+        inset: 28px clamp(24px, 5vw, 64px) auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      #front header b {
+        font-size: 19px;
+        letter-spacing: -0.06em;
+        color: #fffaf2;
+      }
+
+      #front p {
+        position: absolute;
+        left: 24px;
+        right: 24px;
+        margin: 0;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 15px;
+      }
+
+      #sub { top: calc(var(--wb, 50%) + 28px); }
+
+      #hint {
+        bottom: 7%;
+        font-size: 12px !important;
+        color: rgba(255, 255, 255, 0.82) !important;
+      }
+
+      #enter {
+        position: absolute;
+        left: 50%;
+        top: calc(var(--wb, 50%) + 78px);
+        transform: translateX(-50%);
+        display: inline-flex;
+        align-items: center;
+        gap: 22px;
+        min-height: 46px;
+        padding: 0 20px;
+        background: rgba(18, 49, 43, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 13px;
+        text-decoration: none;
+        opacity: var(--cap, 1);
+        pointer-events: var(--hit, auto);
+        transition: 0.2s ease;
+      }
+
+      #enter:hover { background: rgba(30, 68, 60, 0.95); }
+
+      #enter:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 4px;
+        opacity: 1;
+      }
+
+      #content {
+        position: relative;
+        min-height: var(--h, 100svh);
+        padding: 5.5rem clamp(1.25rem, 5vw, 5rem) 6.5rem;
+        display: grid;
+        align-content: center;
+        background: var(--field);
+        color: var(--fg);
+      }
+
+      #gp[data-motion=on] #pin { position: sticky; top: 0; }
+
+      #gp[data-motion=on] #content {
+        margin-top: calc((var(--len) - 1) * var(--h));
+        background: transparent;
+        opacity: var(--rev, 0);
+        pointer-events: none;
+      }
+
+      #gp[data-motion=on][data-entered=true] #content,
+      #gp[data-motion=on] #content:focus-within {
+        pointer-events: auto;
+        opacity: 1;
+      }
+
+      #gp[data-motion=on]:has(#content:focus-within) #field { clip-path: none !important; }
+      #gp[data-motion=off] #hint { display: none; }
+
+      .hero-copy {
+        width: min(100%, 72rem);
+        margin-inline: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+      }
+
+      .hero-copy h2 {
+        margin: 0;
+        max-width: 32rem;
+        font: 400 clamp(2rem, 1.6rem + 2.3vw, 3.2rem) / 1.15 Georgia, "Times New Roman", serif;
+        letter-spacing: -0.03em;
+        text-wrap: balance;
+      }
+
+      .hero-copy .lead {
+        max-width: 38rem;
+        margin: 0;
+        font-size: 1.08rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+
+      .cta-row .btn { min-height: 52px; padding: 0 1.3rem; }
+
+      .vitals {
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+
+      .vital {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 1.2rem 1rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      .vital .k {
+        display: block;
+        margin-bottom: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.76rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .vital .v {
+        font-size: clamp(1.5rem, 1.2rem + 1vw, 2.2rem);
+        font-weight: 800;
+        letter-spacing: -0.08em;
+      }
+
+      .feat {
+        display: grid;
+        gap: 1.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      }
+
+      .feat .card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 1.1rem 1rem 1.25rem;
+      }
+
+      .feat h3 {
+        margin: 0;
+        font-size: 1.08rem;
+        font-weight: 600;
+      }
+
+      .feat p {
+        margin: 0.6rem 0 0;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+        font-size: 0.96rem;
+      }
+
+      .section { padding: 5rem 0; }
+
+      .band {
+        background: linear-gradient(135deg, rgba(7, 14, 13, 0.98), rgba(18, 39, 32, 0.96));
+        color: #edf4f2;
+      }
+
+      .band-inner {
+        width: min(var(--container), calc(100% - 2rem));
+        margin-inline: auto;
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+      }
+
+      .band-copy h3 {
+        margin: 0 0 0.8rem;
+        font-size: clamp(2.1rem, 1.2rem + 2.4vw, 3.5rem);
+        line-height: 1.09;
+        letter-spacing: -0.05em;
+      }
+
+      .band-copy p {
+        margin: 0;
+        color: #bed0cb;
+        line-height: 1.8;
+        font-size: 1.02rem;
+      }
+
+      .dashboard {
+        background: rgba(11, 22, 20, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: 1rem;
+        box-shadow: 0 30px 80px rgba(6, 13, 12, 0.36);
+      }
+
+      .dashboard-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.3rem 0.2rem 0.9rem;
+      }
+
+      .dots { display: flex; gap: 0.55rem; }
+
+      .dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: block;
+      }
+
+      .dots .a { background: #ff6b6b; }
+      .dots .b { background: #ffd93d; }
+      .dots .c { background: #51cf66; }
+
+      .mini-grid {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 1rem;
+      }
+
+      .mini {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 0.85rem;
+      }
+
+      .mini strong {
+        display: block;
+        font-size: 1.45rem;
+        letter-spacing: -0.06em;
+      }
+
+      .mini span {
+        display: block;
+        margin-top: 0.35rem;
+        color: #b2c8c3;
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .bars {
+        display: flex;
+        align-items: flex-end;
+        height: 120px;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .bars span {
+        display: block;
+        flex: 1;
+        border-radius: 10px 10px 0 0;
+        background: linear-gradient(180deg, var(--mint), var(--blue));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      .three-grid {
+        width: min(var(--container), calc(100% - 2rem));
+        margin-inline: auto;
+        display: grid;
+        gap: 1.4rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .info-card {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(18, 33, 31, 0.08);
+        border-radius: 22px;
+        padding: 1.5rem;
+        box-shadow: 0 14px 28px rgba(12, 25, 23, 0.04);
+      }
+
+      .info-card h4 {
+        margin: 0 0 0.8rem;
+        font-size: 1.1rem;
+        letter-spacing: -0.03em;
+      }
+
+      .info-card p {
+        margin: 0;
+        color: #425a57;
+        line-height: 1.7;
+      }
+
+      .cta-band { padding: 4rem 0 6rem; }
+
+      .cta-panel {
+        width: min(var(--container), calc(100% - 2rem));
+        margin-inline: auto;
+        background: linear-gradient(135deg, rgba(17, 43, 40, 0.96), rgba(26, 59, 52, 0.92));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        color: #fff;
+        box-shadow: 0 28px 60px rgba(14, 27, 25, 0.15);
+      }
+
+      .cta-panel h3 {
+        margin: 0;
+        font-size: clamp(1.7rem, 1.1rem + 1.8vw, 2.8rem);
+        letter-spacing: -0.05em;
+      }
+
+      .cta-panel p {
+        margin: 0.4rem 0 0;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .login-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(10, 15, 15, 0.52);
+        backdrop-filter: blur(10px);
+        z-index: 50;
+      }
+
+      .login-modal.open { display: grid; }
+
+      .modal-card {
+        width: min(440px, calc(100% - 2rem));
+        background: #f9f4ef;
+        border: 1px solid rgba(13, 23, 23, 0.08);
+        border-radius: 24px;
+        padding: 1.5rem 1.25rem 1.1rem;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+      }
+
+      .modal-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .modal-top h4 {
+        margin: 0;
+        font-size: 1.4rem;
+        letter-spacing: -0.04em;
+      }
+
+      .close-btn {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #45615f;
+      }
+
+      .form-grid { display: grid; gap: 0.9rem; }
+      .field { display: grid; gap: 0.4rem; }
+
+      .field label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.11em;
+        color: #56706d;
+        font-weight: 700;
+      }
+
+      .field input {
+        width: 100%;
+        min-height: 46px;
+        border-radius: 12px;
+        border: 1px solid rgba(16, 36, 34, 0.12);
+        background: #fff;
+        padding: 0.8rem 0.9rem;
+        font-size: 1rem;
+        color: var(--ink);
+      }
+
+      .field input:focus {
+        outline: 2px solid rgba(126, 160, 150, 0.6);
+        outline-offset: 2px;
+        border-color: transparent;
+      }
+
+      .inline {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        font-size: 0.88rem;
+        color: #4d6663;
+      }
+
+      .checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .checkbox input {
+        accent-color: var(--field-2);
+        width: 15px;
+        height: 15px;
+      }
+
+      .submit {
+        margin-top: 0.5rem;
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--field-2), var(--panel-3));
+        color: #fff;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      footer {
+        padding: 2.5rem 1.5rem 5rem;
+        color: #4b5e5d;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        .nav { display: none; }
+        .band-inner { grid-template-columns: 1fr; }
+        .cta-panel { flex-direction: column; align-items: flex-start; }
+      }
+
+      @media (max-width: 760px) {
+        .topbar-inner { gap: 0.5rem; }
+        .nav-actions .btn.ghost { display: none; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #pin { position: relative !important; }
+        #content {
+          margin-top: 0 !important;
+          opacity: 1 !important;
+          background: var(--field) !important;
+          min-height: 0;
+          padding-block: 64px;
+        }
+        html { scroll-behavior: auto; }
+        .btn, .login-modal, .modal-card { transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <div class="brand">
+          <span class="brand-mark">R</span>
+          <span>risebazaar.</span>
+        </div>
+
+        <nav class="nav" aria-label="main navigation">
+          <a href="#product">Product</a>
+          <a href="#solutions">Solutions</a>
+          <a href="#insights">Insights</a>
+          <a href="#pricing">Pricing</a>
+        </nav>
+
+        <div class="nav-actions">
+          <button class="btn ghost" type="button" data-open-login>Log in</button>
+          <a href="#contact" class="btn primary">Book demo</a>
+        </div>
+      </div>
+    </header>
+
+    <section id="gp" aria-label="RiseBazaar portal">
+      <div id="vp" aria-hidden="true"></div>
+      <div id="pin">
+        <div id="field" aria-hidden="true"><i></i></div>
+
+        <svg id="art" aria-hidden="true" focusable="false">
+          <defs>
+            <clipPath id="clip" clipPathUnits="userSpaceOnUse">
+              <text id="glyph" x="0" y="0"></text>
+            </clipPath>
+          </defs>
+        </svg>
+
+        <div id="choices" role="radiogroup" aria-label="Choose the letter to enter through" inert></div>
+
+        <div id="front">
+          <header>
+            <b>risebazaar.</b>
+            <span>AI retail intelligence</span>
+          </header>
+          <p id="sub">Smarter inventory. Sharper demand. Better growth.</p>
+          <p id="hint">Scroll to explore ↓</p>
+        </div>
+
+        <span id="fallback" aria-hidden="true">RISE</span>
+        <a id="enter" href="#content">Step inside <span aria-hidden="true">↘</span></a>
+      </div>
+
+      <div id="content" tabindex="-1">
+        <div class="hero-copy">
+          <div>
+            <h2>Turn every signal into a smarter retail move.</h2>
+            <p class="lead">
+              RiseBazaar uses AI to predict demand, optimize stock, and help teams act before the market shifts.
+              Designed for retail brands that want more clarity and less guesswork.
+            </p>
+
+            <div class="cta-row">
+              <a href="#contact" class="btn primary">See live dashboard</a>
+              <button type="button" class="btn ghost" data-open-login style="background: rgba(255,255,255,.06); color: #fff; border-color: rgba(255,255,255,.12);">Start free</button>
+            </div>
+          </div>
+
+          <div class="vitals">
+            <div class="vital">
+              <span class="k">Forecast accuracy</span>
+              <span class="v">96.3%</span>
+            </div>
+            <div class="vital">
+              <span class="k">Sales uplift</span>
+              <span class="v">+34%</span>
+            </div>
+            <div class="vital">
+              <span class="k">Stock alerts</span>
+              <span class="v">24/7</span>
+            </div>
+          </div>
+
+          <div class="feat" id="product">
+            <div class="card">
+              <h3>Choose your path</h3>
+              <p>Hover or tap any letter, then scroll. Keyboard navigation also works for accessibility.</p>
+            </div>
+            <div class="card">
+              <h3>Set the scene</h3>
+              <p>Replace the background with photography, video, or a product story for your brand look.</p>
+            </div>
+            <div class="card">
+              <h3>Keep exploring</h3>
+              <p>Expand this section with features, service calls, pricing, or customer proof.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section band" id="solutions">
+      <div class="band-inner">
+        <div class="band-copy">
+          <h3>Retail intelligence built for momentum.</h3>
+          <p>
+            From seasonal planning to campaign timing, RiseBazaar helps teams see what shoppers want and act on it before competitors do.
+            Every recommendation is grounded in live product, pricing, and sales behavior.
+          </p>
+        </div>
+
+        <div class="dashboard" aria-label="Forecast dashboard preview">
+          <div class="dashboard-head">
+            <div class="dots">
+              <span class="a"></span><span class="b"></span><span class="c"></span>
+            </div>
+            <span style="font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; color: #dfeeea;">Forecast</span>
+          </div>
+
+          <div class="mini-grid">
+            <div class="mini">
+              <strong>1,245</strong>
+              <span>Units</span>
+            </div>
+            <div class="mini">
+              <strong>₹4.2L</strong>
+              <span>Sales</span>
+            </div>
+            <div class="mini">
+              <strong>8</strong>
+              <span>Alerts</span>
+            </div>
+          </div>
+
+          <div class="bars" aria-hidden="true">
+            <span style="height: 32%"></span>
+            <span style="height: 44%"></span>
+            <span style="height: 58%"></span>
+            <span style="height: 76%"></span>
+            <span style="height: 92%"></span>
+            <span style="height: 100%"></span>
+            <span style="height: 64%"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="insights">
+      <div class="three-grid">
+        <article class="info-card">
+          <h4>Demand prediction</h4>
+          <p>Estimate sales velocity by region, category, and channel using live behavioural signals and historical patterns.</p>
+        </article>
+        <article class="info-card">
+          <h4>Seasonal planning</h4>
+          <p>Know when to reorder, discount, or promote based on forecast confidence and product performance.</p>
+        </article>
+        <article class="info-card">
+          <h4>Cross-channel clarity</h4>
+          <p>Monitor inventory and customer response across stores, web, and campaigns in one connected view.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-band" id="pricing">
+      <div class="cta-panel">
+        <div>
+          <h3>Bring a sharper operating rhythm to your retail team.</h3>
+          <p>Built for brands that want to reduce stock risk and increase revenue with confidence.</p>
+        </div>
+        <a href="#contact" class="btn primary">Book a strategy call</a>
+      </div>
+    </section>
+
+    <div class="login-modal" id="loginModal" aria-modal="true" role="dialog" aria-labelledby="loginTitle">
+      <div class="modal-card">
+        <div class="modal-top">
+          <h4 id="loginTitle">Welcome back</h4>
+          <button class="close-btn" type="button" aria-label="Close login" data-close-login>&times;</button>
+        </div>
+
+        <form class="form-grid">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="you@company.com" />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="••••••••" />
+          </div>
+
+          <div class="inline">
+            <label class="checkbox">
+              <input type="checkbox" />
+              <span>Remember me</span>
+            </label>
+            <a href="#" style="color: #274c43; text-decoration: none; font-weight: 700;">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="submit">Sign in</button>
+        </form>
+      </div>
+    </div>
+
+    <footer id="contact">
+      RiseBazaar © 2026 · Built for smarter retail operations.<br /><br />
+      <a href="mailto:hello@risebazaar.com" style="color: #295a52; font-weight: 700; text-decoration: none;">hello@risebazaar.com</a>
+    </footer>
+
+    <script>
+      (() => {
+        const WORD = "RISE";
+        const FOCUS = "";
+        const LENGTH = 2.4;
+        const WEIGHT = 900;
+        const INTERACTIVE = true;
+        const FONT = '"Arial Black", Arial, sans-serif';
+
+        const clamp = (n, a = 0, b = 1) => Math.min(b, Math.max(a, n));
+        const smooth = (a, b, n) => {
+          const t = clamp((n - a) / (b - a));
+          return t * t * (3 - 2 * t);
+        };
+
+        const sec = document.querySelector("#gp");
+        const pin = document.querySelector("#pin");
+        const field = document.querySelector("#field");
+        const clip = document.querySelector("#clip");
+        const glyph = document.querySelector("#glyph");
+        const choices = document.querySelector("#choices");
+        const vp = document.querySelector("#vp");
+
+        const text = WORD.trim().normalize("NFC") || "RISE";
+        sec.style.setProperty("--len", LENGTH);
+        glyph.textContent = text;
+        Object.assign(glyph.style, {
+          fontFamily: FONT,
+          fontWeight: WEIGHT,
+          fontSize: "100px",
+          fontKerning: "none",
+          fontVariantLigatures: "none"
+        });
+
+        const chars = [];
+        let off = 0;
+        for (const c of Array.from(text)) {
+          chars.push({ c, i: off });
+          off += c.length;
+        }
+
+        const buttons = chars.map(({ c, i }, n) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", "false");
+          b.tabIndex = -1;
+          b.dataset.i = String(i);
+          b.setAttribute("aria-label", `${c}, letter ${n + 1} of ${chars.length}`);
+          choices.appendChild(b);
+          return b;
+        });
+
+        const motion = matchMedia("(prefers-reduced-motion: reduce)");
+        const cv = document.createElement("canvas");
+        const ctx = cv.getContext("2d", { willReadFrequently: true });
+        let W = 1, H = 1, travel = 1, startScale = 1, endScale = 1;
+        let center = { x: 0, y: 0 }, target = null, bounds = { x: 0, y: 0, width: 1, height: 1 };
+        let candidates = [], letters = [], ready = false, choosing = false, dirty = true, raf = 0;
+
+        function interior(char, font) {
+          ctx.font = font;
+          const m = ctx.measureText(char);
+          const pad = 8;
+          const left = Math.ceil(m.actualBoundingBoxLeft);
+          const asc = Math.ceil(m.actualBoundingBoxAscent);
+
+          cv.width = Math.max(1, Math.ceil(m.actualBoundingBoxLeft + m.actualBoundingBoxRight) + pad * 2);
+          cv.height = Math.max(1, Math.ceil(m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) + pad * 2);
+
+          ctx.font = font;
+          ctx.fontKerning = "none";
+          ctx.fillText(char, pad + left, pad + asc);
+
+          const w = cv.width, h = cv.height, px = ctx.getImageData(0, 0, w, h).data;
+          const rows = new Uint16Array(w + 1);
+          let size = 0, bx = 0, by = 0;
+
+          for (let y = 0; y < h; y++) {
+            let diag = 0;
+            for (let x = 0; x < w; x++) {
+              const above = rows[x + 1];
+              rows[x + 1] = px[(y * w + x) * 4 + 3] > 245 ? Math.min(above, rows[x], diag) + 1 : 0;
+              diag = above;
+              if (rows[x + 1] > size) {
+                size = rows[x + 1];
+                bx = x;
+                by = y;
+              }
+            }
+          }
+
+          if (size < 3) return null;
+          return {
+            x: (bx + 1 - size / 2 - pad - left) / 3,
+            y: (by + 1 - size / 2 - pad - asc) / 3,
+            radius: (size / 2 - 1) / 3
+          };
+        }
+
+        function readInk() {
+          const f = getComputedStyle(glyph);
+          const scanFont = `${f.fontWeight} 300px ${f.fontFamily}`;
+          const baseFont = `${f.fontWeight} 100px ${f.fontFamily}`;
+
+          ctx.font = baseFont;
+          ctx.fontKerning = "none";
+
+          const m = ctx.measureText(text);
+          bounds = {
+            x: -m.actualBoundingBoxLeft,
+            y: -m.actualBoundingBoxAscent,
+            width: m.actualBoundingBoxLeft + m.actualBoundingBoxRight,
+            height: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent
+          };
+
+          if (!bounds.width || !bounds.height) return false;
+
+          center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+
+          const requested = FOCUS ? text.indexOf(FOCUS.normalize("NFC")) : -1;
+          candidates = [];
+          letters = [];
+
+          for (const { c, i } of chars) {
+            ctx.font = baseFont;
+            const adv = ctx.measureText(text.slice(0, i)).width;
+            const lm = ctx.measureText(c);
+
+            letters.push({
+              index: i,
+              x: adv - lm.actualBoundingBoxLeft,
+              y: -lm.actualBoundingBoxAscent,
+              width: lm.actualBoundingBoxLeft + lm.actualBoundingBoxRight,
+              height: lm.actualBoundingBoxAscent + lm.actualBoundingBoxDescent
+            });
+
+            const found = interior(c, scanFont);
+            if (found) candidates.push({ ...found, x: found.x + adv, index: i });
+          }
+
+          target = candidates.find((k) => k.index === requested) || [...candidates].sort((a, b) => b.radius - a.radius || Math.abs(a.x - center.x) - Math.abs(b.x - center.x))[0] || null;
+          return true;
+        }
+
+        function select(next) {
+          target = next;
+          endScale = target ? Math.max(startScale, Math.hypot(W, H) / (target.radius * 1.35)) : startScale;
+
+          for (const b of buttons) {
+            const idx = Number(b.dataset.i);
+            b.disabled = !candidates.some((k) => k.index === idx);
+            b.setAttribute("aria-checked", String(idx === target?.index));
+            b.tabIndex = idx === target?.index ? 0 : -1;
+          }
+        }
+
+        function position() {
+          return clamp(-sec.getBoundingClientRect().top / travel);
+        }
+
+        function paint(progress) {
+          const isStatic = motion.matches || !target;
+          const p = isStatic ? 0 : progress;
+          const t = clamp(p / 0.78);
+
+          const eased = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
+          const scale = Math.exp(Math.log(startScale) + Math.log(endScale / startScale) * eased);
+          const blend = endScale === startScale ? 0 : (1 / scale - 1 / startScale) / (1 / endScale - 1 / startScale);
+
+          const cx = center.x + ((target?.x ?? center.x) - center.x) * blend;
+          const cy = center.y + ((target?.y ?? center.y) - center.y) * blend;
+          const roll = -4 * smooth(0.06, 0.5, t) * (1 - smooth(0.62, 0.92, t));
+          const r = roll * Math.PI / 180;
+          const dx = W / 2 / scale;
+          const dy = (H * 0.46 + H * 0.04 * eased) / scale;
+
+          clip.setAttribute("transform", `scale(${scale}) rotate(${roll})`);
+          glyph.setAttribute("transform", `translate(${Math.cos(r) * dx + Math.sin(r) * dy - cx} ${-Math.sin(r) * dx + Math.cos(r) * dy - cy})`);
+
+          choosing = INTERACTIVE && !isStatic && p < 0.04;
+          choices.inert = !choosing;
+          sec.dataset.choosing = String(choosing);
+
+          field.style.clipPath = t >= 1 ? "none" : "url(#clip)";
+          sec.style.setProperty("--cap", 1 - smooth(0.01, 0.16, p));
+          sec.style.setProperty("--rev", isStatic ? 1 : smooth(0.78, 0.9, p));
+          sec.style.setProperty("--fs", 1 + 0.16 * smooth(0, 0.82, p));
+          sec.style.setProperty("--hit", p < 0.08 ? "auto" : "none");
+          sec.dataset.entered = String(p >= 0.9);
+        }
+
+        function layout() {
+          if (!sec.clientWidth) return;
+          W = pin.clientWidth;
+          const vh = Math.max(1, vp.offsetHeight);
+          H = motion.matches ? Math.min(vh * 0.75, 480) : vh;
+
+          sec.style.setProperty("--h", H + "px");
+          travel = H * LENGTH;
+          document.querySelector("#art").setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+          if (!ready) {
+            ready = readInk();
+            if (!ready) return;
+          }
+
+          startScale = Math.min(W * 0.84 / bounds.width, (H * 0.38) / bounds.height);
+          select(target);
+
+          for (const b of buttons) {
+            const l = letters.find((k) => k.index === Number(b.dataset.i));
+            Object.assign(b.style, {
+              left: `${W / 2 + (l.x - center.x) * startScale}px`,
+              top: `${H * 0.46 + (l.y - center.y) * startScale - Math.max(0, 44 - l.height * startScale) / 2}px`,
+              width: `${Math.max(1, l.width * startScale)}px`,
+              height: `${Math.max(44, l.height * startScale)}px`
+            });
+          }
+
+          sec.style.setProperty("--wb", `${H * 0.46 + bounds.height * startScale / 2}px`);
+          sec.dataset.ready = "true";
+          sec.dataset.motion = (!motion.matches && target) ? "on" : "off";
+        }
+
+        function frame() {
+          raf = 0;
+          if (dirty) {
+            dirty = false;
+            layout();
+          }
+          if (ready) paint(position());
+        }
+
+        const schedule = () => { if (!raf) raf = requestAnimationFrame(frame); };
+        const resize = () => { dirty = true; schedule(); };
+
+        const choose = (e) => {
+          if (!choosing) return;
+          const b = e.target.closest("button");
+          const next = b && candidates.find((k) => k.index === Number(b.dataset.i));
+          if (next && next !== target) {
+            select(next);
+            paint(position());
+          }
+        };
+
+        choices.addEventListener("pointerover", choose);
+        choices.addEventListener("click", choose);
+        choices.addEventListener("focusin", choose);
+
+        choices.addEventListener("keydown", (e) => {
+          if (!choosing || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+          e.preventDefault();
+
+          const cur = candidates.indexOf(target);
+          const n = candidates.length;
+          const idx = e.key === "Home" ? 0 : e.key === "End" ? n - 1 : (cur + (/Left|Up/.test(e.key) ? -1 : 1) + n) % n;
+
+          buttons.find((b) => Number(b.dataset.i) === candidates[idx].index)?.focus({ preventScroll: true });
+        });
+
+        addEventListener("scroll", schedule, { passive: true });
+        addEventListener("resize", resize);
+        if (window.visualViewport) visualViewport.addEventListener("resize", resize);
+        motion.addEventListener("change", resize);
+        new ResizeObserver(resize).observe(sec);
+
+        (document.fonts?.ready ?? Promise.resolve()).then(resize);
+        resize();
+
+        const modal = document.getElementById("loginModal");
+        const openButtons = document.querySelectorAll("[data-open-login]");
+        const closeButtons = document.querySelectorAll("[data-close-login]");
+
+        openButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            modal.classList.add("open");
+          });
+        });
+
+        closeButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            modal.classList.remove("open");
+          });
+        });
+
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) modal.classList.remove("open");
+        });
+
+        document.querySelector(".form-grid").addEventListener("submit", (e) => {
+          e.preventDefault();
+          alert("Demo login submitted — this is a front-end mock.");
+        });
+      })();
+    </script>
+  </body>
+</html>
